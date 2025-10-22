@@ -49,7 +49,7 @@ class ProfessorRepository:
             return None
 
         cursor.execute(
-            "UPDATE alunos SET nome = ?, idade = ?, cpf = ? WHERE id = ?;",
+            "UPDATE professores SET nome = ?, idade = ?, formacao = ? WHERE id = ?;",
             (obj_professor.nome, obj_professor.idade, obj_professor.formacao, obj_professor.id),
         )
         conn.commit()
