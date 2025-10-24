@@ -2,12 +2,11 @@ from flask import Blueprint, request, jsonify
 from core.aluno.aluno_service import AlunoService
 from core.aluno.aluno import Aluno
 from core.autenticacao.autenticacao import autenticacao
+from core.validador.validador import validar_dados
 
 aluno_service = AlunoService()
 
 aluno_controller = Blueprint('aluno', __name__, url_prefix='/alunos')
-
-
 # criar decoreitor
 @aluno_controller.route('/', methods=['GET'])
 @autenticacao
@@ -42,8 +41,13 @@ def remover_aluno(id):
 @autenticacao
 def atualizar_aluno():
     dados = request.get_json()
-    obter_aluno = Aluno(id=dados["id"], nome=dados["nome"], idade=dados["idade"], cpf=dados["cpf"])
-    aluno = aluno_service.atualizar_aluno(obter_aluno)
+
+    result = validar_dados(dados["cpf"], dados["nome"], dados["idade"])
+    if result != True:
+        return jsonify(result), 400
+
+    obj_aluno = Aluno(id=dados["id"], nome=dados["nome"], idade=dados["idade"], cpf=dados["cpf"])
+    aluno = aluno_service.atualizar_aluno(obj_aluno)
     if aluno:
         return jsonify(aluno)
     else:
