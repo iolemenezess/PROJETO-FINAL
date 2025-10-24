@@ -25,7 +25,7 @@ def adicinar_professor():
 
 @professor_controller.route('/<int:id>', methods=['GET'])
 @autenticacao
-def obter_profeesor(id):
+def obter_professor(id):
     professor = professor_service.obter_professor_por_id(id)
     if professor:
         return jsonify(professor)

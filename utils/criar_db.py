@@ -1,66 +1,92 @@
 import sqlite3
 
+# Nome do arquivo do banco
 DB_NAME = "escola.db"
 
-# AlunoRepository: Responsável por acessar e manipular os dados da aplicação.
-class ProfessorRepository:
-    def __init__(self, db_name=DB_NAME):
-        self.db_name = db_name
+# Script SQL para criação das tabelas
+CREATE_TABLE_ALUNOS_SQL = """
+CREATE TABLE IF NOT EXISTS alunos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    idade INTEGER NOT NULL,
+    cpf TEXT NOT NULL
+);
+"""
 
-    def conectar(self):
-        return sqlite3.connect(self.db_name)
+CREATE_TABLE_USUARIOS_SQL = """
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario TEXT NOT NULL,
+    senha TEXT NOT NULL,
+    ativo INTEGER NOT NULL
+);
+"""
 
-    def listar(self):
-        conn = self.conectar()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, nome, idade, formacao FROM professores;")
-        rows = cursor.fetchall()
-        conn.close()
-        return [{"id": row[0], "nome": row[1], "idade": row[2], "formacao": row[3]} for row in rows]
+CREATE_TABLE_PROFESSORES_SQL = """
+CREATE TABLE IF NOT EXISTS professores (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    idade INTEGER NOT NULL,
+    formacao TEXT NOT NULL
+);
+"""
 
-    def obter_por_id(self, prof_id):
-        conn = self.conectar()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, nome, idade, formacao FROM professores WHERE id = ?;", (prof_id,))
-        row = cursor.fetchone()
-        conn.close()
-        if row:
-            return {"id": row[0], "nome": row[1], "idade": row[2], "formacao": row[3]}
-        return None
+CREATE_TABLE_MATERIAS_SQL = """
+CREATE TABLE IF NOT EXISTS materias (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    sigla_curricular TEXT NOT NULL,
+    descricao TEXT NOT NULL
+);
+"""
 
-    def adicionar(self, obj_professor):
-        conn = self.conectar()
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO professores (nome, idade, formacao) VALUES (?, ?, ?);", (obj_professor.nome, obj_professor.idade, obj_professor.formacao))
-        conn.commit()
-        novo_id = cursor.lastrowid
-        conn.close()
-        return {"id": novo_id, "nome": obj_professor.nome, "idade": obj_professor.idade, "cpf": obj_professor.formacao}
+# Dados iniciais
+INSERT_INICIAIS_ALUNOS = """
+INSERT INTO alunos (nome, idade, cpf) VALUES
+('Paulo', 20, "00000000000"),
+('Maria', 22, "00000000000"),
+('João', 19, "00000000000");
+"""
 
-    def atualizar(self, obj_professor):
-        conn = self.conectar()
-        cursor = conn.cursor()
+INSERT_INICIAIS_USUARIO = """
+INSERT INTO usuarios (usuario, senha, ativo) VALUES
+('senai', 'senai123', 1)
+"""
 
-        # Buscar aluno antes de atualizar
-        cursor.execute("SELECT id, nome, idade, formacao FROM professores WHERE id = ?;", (obj_professor.id,))
-        row = cursor.fetchone()
-        if not row:
-            conn.close()
-            return None
+def init_db():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
 
-        cursor.execute(
-            "UPDATE alunos SET nome = ?, idade = ?, cpf = ? WHERE id = ?;",
-            (obj_professor.nome, obj_professor.idade, obj_professor.formacao, obj_professor.id),
-        )
-        conn.commit()
-        conn.close()
-        return {"id": obj_professor.id, "nome": obj_professor.nome, "idade": obj_professor.idade, "formacao": obj_professor.formacao}
+    # Criar tabela
+    cursor.execute(CREATE_TABLE_ALUNOS_SQL)
+    cursor.execute(CREATE_TABLE_USUARIOS_SQL)
+    cursor.execute(CREATE_TABLE_PROFESSORES_SQL)
+    cursor.execute(CREATE_TABLE_MATERIAS_SQL)
 
-    def remover(self, prof_id):
-        conn = self.conectar()
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM professores WHERE id = ?;", (prof_id,))
-        conn.commit()
-        linhas_afetadas = cursor.rowcount
-        conn.close()
-        return linhas_afetadas > 0
+    # Inserir dados iniciais só se tabela estiver vazia: alunos
+    cursor.execute("SELECT COUNT(*) FROM alunos;")
+    count = cursor.fetchone()[0]
+    if count == 0:
+        cursor.execute(INSERT_INICIAIS_ALUNOS)
+        print(">> Dados iniciais inseridos na tabela ALUMOS.")
+    else:
+        print(">> Tabela ALUNOS já contém dados, nada foi inserido.")
+
+    conn.commit()
+
+    # Inserir dados iniciais só se tabela estiver vazia: usuarios
+    cursor.execute("SELECT COUNT(*) FROM usuarios;")
+    count = cursor.fetchone()[0]
+    if count == 0:
+        cursor.execute(INSERT_INICIAIS_USUARIO)
+        print(">> Dados iniciais inseridos na tabela USUARIOS.")
+    else:
+        print(">> Tabela USUÁRIOS já contém dados, nada foi inserido.")
+
+    conn.commit()
+    conn.close()
+
+    print(">> Banco inicializado com sucesso!")
+
+if __name__ == "__main__":
+    init_db()

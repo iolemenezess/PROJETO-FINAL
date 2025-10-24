@@ -6,7 +6,7 @@ class MateriaService:
         self.repository = MateriaRepository()
 
 
-    def listar_materia(self):
+    def listar_materias(self):
         return self.repository.listar()
     
     def adicionar_materia(self, materia):

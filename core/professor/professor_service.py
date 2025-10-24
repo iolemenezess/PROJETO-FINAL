@@ -6,7 +6,7 @@ class ProfessorService:
         self.repository = ProfessorRepository()
 
 
-    def listar_professor(self):
+    def listar_professores(self):
         return self.repository.listar()
     
     def adicionar_professor(self, professor):

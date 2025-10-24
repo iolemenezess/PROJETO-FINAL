@@ -19,7 +19,7 @@ def listar_materias():
 @autenticacao
 def adicinar_materia():
     dados = request.get_json()
-    obj_materia = Materia(id=0,nome=dados["nome"], idade=dados["idade"], cpf=dados["cpf"])
+    obj_materia = Materia(id=0,nome=dados["nome"], sigla_curricular=dados["sigla_curricular"], descricao=dados["descricao"])
     materia = materia_service.adicionar_materia(obj_materia)
     return jsonify(materia), 201
 
@@ -30,22 +30,22 @@ def obter_materia(id):
     if materia:
         return jsonify(materia)
     else:
-        return jsonify({"erro": " Professor não encontrado"}), 404   
+        return jsonify({"erro": " Materia não encontrado"}), 404   
 
-@professor_controller.route('/<int:id>', methods=['DELETE'])
+@materia_controller.route('/<int:id>', methods=['DELETE'])
 @autenticacao
-def remover_professor(id):
-    sucesso = professor_service.remover_professor(id)
+def remover_materia(id):
+    sucesso = materia_service.remover_materia(id)
     return jsonify(sucesso)
 
-@professor_controller.route('/', methods=['PUT'])
+@materia_controller.route('/', methods=['PUT'])
 @autenticacao
-def atualizar_professor():
+def atualizar_materia():
     dados = request.get_json()
-    obter_professor = Professor(id=dados["id"], nome=dados["nome"], idade=dados["idade"], cpf=dados["cpf"])
-    professor = professor_service.atualizar_professor(obter_professor)
-    if professor:
-        return jsonify(professor)
+    obter_materia = Materia(id=dados["id"], nome=dados["nome"], idade=dados["idade"], cpf=dados["cpf"])
+    materia = materia_service.atualizar_materia(obter_materia)
+    if materia:
+        return jsonify(materia)
     else:
-        return jsonify({"erro": "Professor não encontrado"}), 404
+        return jsonify({"erro": "Materia não encontrado"}), 404
     

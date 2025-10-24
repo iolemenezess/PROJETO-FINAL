@@ -1,4 +1,4 @@
-from core.usuario.usuario import UsuarioRepository
+from core.usuario.usuario_repositorio import UsuarioRepository
 from core.usuario.usuario import Usuario
 
 class UsuarioService:
